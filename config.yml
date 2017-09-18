@@ -1,0 +1,15 @@
+---
+zones:
+  "example.com":
+    admin_token: change_me_aswell,
+    acl:
+      - subdomains: [ "*test*" ]
+        record_types: ["A", "AAAA", "ANY", "TXT"]
+        access: "rw"
+        users: ["test1"]
+    master: "ns.example.com"
+    master_auth: "none" # none, tsig
+    master_auth_key: "path/to/file"
+users:
+  - name: test1
+    password: "$pbkdf2-sha512$25000$NYYQojSG8B6jlJJSinGO8Q$49CMIM8VoEAhJX3W5e/rNKlx./yyG/wMKiI2II8qJSWDjNiyXeIUIhLRp5eVcPAPC4OSLPc6cloMnVuO8fH9wA"
