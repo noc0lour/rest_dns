@@ -30,9 +30,10 @@ def zone_access(zone, entry):
         acls = zone_acl.get('acl')
         for acl in acls:
             if check_acl(acl, entry, current_identity, zone_request):
-                process_request(zone, entry, zone_request)
-                print(zone_request)
-                break
+                if process_request(zone, entry, zone_request, zone_acl):
+                    break
+                else:
+                    return "Syntax Error\n", 400
         else:
             return "Access denied\n", 403
         return "Request successfully processed\n", 201

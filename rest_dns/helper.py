@@ -1,6 +1,11 @@
 import argparse
 import re
 
+from dns import update
+from dns import tsigkeyring
+from dns import query
+from dns import rdataset
+
 valid_request_fields = {
     "request_type": ("add", "del"),
     "class": ("IN"),
@@ -89,7 +94,29 @@ def check_acl(acl, entry, identity, request):
     return True
 
 
-
-
-def process_request(zone, entry, request):
+def process_request(zone, entry, request, zone_acl):
+    # request is already checked and acl is applied
+    keyring = None
+    if not zone_acl.get("master_auth", "none").lower() == "none":
+        keyfile = zone_acl.get("master_auth_key", None)
+        if keyfile is None:
+            return False
+        with open(keyfile, 'r') as f:
+            key = f.read().rstrip()
+        keyring = tsigkeyring.from_text({
+            '': key
+        })
+    if keyring is not None:
+        zone_update = update.Update(zone, keyring)
+    else:
+        zone_update = update.Update(zone)
+    zone_data = rdataset.from_text(request.get("class", "IN"), request.get("type"), request.get("ttl", None), request.get("target", ""))
+    if request.get("request_type") == "add":
+        zone_update.add(entry, zone_data)
+    elif request.get("request_type") == "del":
+        zone_update.delete(entry, zone_data)
+    try:
+        query.tcp(zone_update, zone_acl.get("master"))
+    except Exception:
+        return False
     return True
