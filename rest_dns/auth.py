@@ -15,10 +15,12 @@ class User(object):
         return "User(id='%s')" % self.id
 
 def import_users(cf_users):
-    for num, user in enumerate(cf_users, 1):
-        users.append(User(num, user.get('name'), user.get('password').encode('utf-8')))
-    username_table.update({user.username: user for user in users})
-    userid_table.update({user.id: user for user in users})
+    if cf_users is not None:
+        for num, user in enumerate(cf_users, 1):
+            users.append(User(num, user.get('name'),
+                              user.get('password').encode('utf-8')))
+        username_table.update({user.username: user for user in users})
+        userid_table.update({user.id: user for user in users})
 
 def authenticate(username, password):
     user = username_table.get(username, None)

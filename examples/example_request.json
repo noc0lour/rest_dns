@@ -1,0 +1,7 @@
+{
+    "request_type": "add", /* mandatory, no default [add, del, show] */
+    "class": "IN", /* default IN */
+    "ttl": 15200, /* will use zone default TTL */
+    "type": "A", /* mandatory, no default, [A, AAAA, CNAME, TXT, MX, NS, PTR, SOA] */
+    "target": "127.0.0.1" /* data corresponding to the selected type */
+}
