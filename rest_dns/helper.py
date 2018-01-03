@@ -5,6 +5,7 @@ from dns import update
 from dns import tsigkeyring
 from dns import query
 from dns import rdataset
+from dns import tsig
 
 valid_request_fields = {
     "request_type": ("add", "del"),
@@ -101,13 +102,13 @@ def process_request(zone, entry, request, zone_acl):
         keyfile = zone_acl.get("master_auth_key", None)
         if keyfile is None:
             return False
-        with open(keyfile, 'r') as f:
+        with open(keyfile, 'rt') as f:
             key = f.read().rstrip()
         keyring = tsigkeyring.from_text({
-            '': key
+            "test.key": key
         })
     if keyring is not None:
-        zone_update = update.Update(zone, keyring)
+        zone_update = update.Update(zone, keyring=keyring, keyalgorithm=tsig.HMAC_SHA512)
     else:
         zone_update = update.Update(zone)
     zone_data = rdataset.from_text(request.get("class", "IN"), request.get("type"), request.get("ttl", None), request.get("target", ""))
@@ -115,8 +116,9 @@ def process_request(zone, entry, request, zone_acl):
         zone_update.add(entry, zone_data)
     elif request.get("request_type") == "del":
         zone_update.delete(entry, zone_data)
+        print(zone_update.to_text)
     try:
         query.tcp(zone_update, zone_acl.get("master"))
-    except Exception:
+    except Exception as e:
         return False
     return True
