@@ -18,7 +18,7 @@ valid_request_fields = {
 
 def parse_args():
     """
-    Parse arguments 
+    Parse arguments
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--file',
@@ -65,6 +65,8 @@ def check_request(zone, entry, request):
         valid_value = valid_request_fields.get(key, None)
         if valid_value is None:
             return (False, "Key %s is not allowed in request\n" % key)
+
+        # Either a type or a list of allowed values
         if type(valid_value) == type:
             try:
                 request[key] = valid_value(value)

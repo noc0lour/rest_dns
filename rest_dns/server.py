@@ -32,6 +32,7 @@ def env_cfg():
             with open(env_var, 'r') as cf:
                 config = yaml.safe_load(cf)
         except:
+            print("Failed opening configuration!")
             exit(1)
         return config
     return {}
